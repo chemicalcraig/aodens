@@ -529,12 +529,15 @@ bool parseLog(string str, Molecule *mol) {
 }
 
 /** Print some stuff **/
-void printStuff(Molecule *mol) {
+void printStuff(Molecule *mol,int nroot) {
   ofstream outfile;
   outfile.open("aodata.dat");
   
   /* print atomic numbers, elements, positions, and tq's */
   /* natoms first */
+  outfile<<"Natoms : "<<mol->natoms<<endl;
+  //outfile<<"Ground state E : "<<mol->eg<<endl;
+  outfile<<"State energy "<<mol->excenergy[nroot]<<endl;
   for (int i=0; i<mol->natoms; i++) {
     outfile<<i+1<<" "<<mol->atoms[i].type.c_str()<<" "
       <<mol->atoms[i].x<<" "<<mol->atoms[i].y<<" "<<mol->atoms[i].z<<" "

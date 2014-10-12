@@ -94,7 +94,7 @@ cout<<"Done reading overlap eigenvectors"<<endl;
     calcdip(&molecule);
 
     /* Print stuff */
-    printStuff(&molecule);
+    printStuff(&molecule,nroot);
 
   } else if (temps == "overlap") {
 
