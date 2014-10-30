@@ -7,6 +7,7 @@ using namespace std;
 
 class Molecule {
   public:
+  double eg;
   int nao,nbasis;
   int nmo;
   int nroots;

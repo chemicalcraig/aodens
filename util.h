@@ -372,7 +372,7 @@ bool parseLog(string str, Molecule *mol) {
         } //end full blocks
         int remain = mol->nbasis%ncol;
         cout<<"remain = "<<remain<<endl;
-        if (remain > 0)
+        if (remain > 0) {
           getnlines(infile,tempc,3,1000);
         for (int i=0; i<mol->nbasis; i++) {
           temps = strtok(tempc," ");
@@ -384,6 +384,7 @@ bool parseLog(string str, Molecule *mol) {
           } //end col
           infile.getline(tempc,1000);
         } //end row
+        } //end remain
       } //end overlap matrix
 
 /** Final MO analysis **/
@@ -531,13 +532,16 @@ bool parseLog(string str, Molecule *mol) {
 /** Print some stuff **/
 void printStuff(Molecule *mol,int nroot) {
   ofstream outfile;
+  outfile.precision(16);
   outfile.open("aodata.dat");
   
   /* print atomic numbers, elements, positions, and tq's */
   /* natoms first */
   outfile<<"Natoms : "<<mol->natoms<<endl;
-  //outfile<<"Ground state E : "<<mol->eg<<endl;
-  outfile<<"State energy "<<mol->excenergy[nroot]<<endl;
+  if (nroot == -1) //ground state
+    outfile<<"State energy : 0"<<endl;
+  else
+    outfile<<"State energy : "<<mol->excenergy[nroot]<<endl;
   for (int i=0; i<mol->natoms; i++) {
     outfile<<i+1<<" "<<mol->atoms[i].type.c_str()<<" "
       <<mol->atoms[i].x<<" "<<mol->atoms[i].y<<" "<<mol->atoms[i].z<<" "
