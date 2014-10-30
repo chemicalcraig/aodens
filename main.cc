@@ -29,11 +29,6 @@ int main(int argc, char **argv) {
    *              transition densities
    */
   
-  comfile.getline(tempc,1000);
-  temps = strtok(tempc, ":");
-  temps = strtok(NULL, " :");
-  
-    
     /* Allocate memory for molecule object */
     Molecule molecule;
     
