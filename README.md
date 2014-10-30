@@ -15,7 +15,8 @@ where a sample input file has the following format
 
 natoms: 39 
 log file: pmimeth.out 
-movec file: pmimethvecs.dat 
+donor log file:     pmimeth.out 
+donor movec file:   pmimethvecs.dat 
 excitations: rpa 
 root: 1
 
