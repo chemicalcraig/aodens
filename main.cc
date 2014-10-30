@@ -33,7 +33,6 @@ int main(int argc, char **argv) {
   temps = strtok(tempc, ":");
   temps = strtok(NULL, " :");
   
-  if (temps == "transden") {
     
     /* Allocate memory for molecule object */
     Molecule molecule;
@@ -95,13 +94,6 @@ cout<<"Done reading overlap eigenvectors"<<endl;
 
     /* Print stuff */
     printStuff(&molecule,nroot);
-
-  } else if (temps == "overlap") {
-
-  } else {
-    cout<<"Unrecognized calculation type!"<<endl;
-    return -1;
-  }
 
   return 0;
 }
