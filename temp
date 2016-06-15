@@ -1,0 +1,22 @@
+/*** Calculate the product C^T.S.C ***/
+/* should be the identity matrix
+ */
+void calcoverlapeigenproduct(Molecule *mol) {
+  double *m = new double[mol->nmo*mol->nmo];
+  double sum;
+  
+  gsl_matrix_view MOS = gsl_matrix_view_array(mol->mos, mol->nmo, mol->nbasis);
+  gsl_matrix_view OV = gsl_matrix_view_array(mol->overlapm,mol->nbasis,mol->nbasis);
+  gsl_matrix_view RES = gsl_matrix_view_array(m,mol->nmo,mol->nmo);
+
+  gsl_blas_dgemm(CblasTrans,CblasNoTrans,
+                  1.0, &MOS.matrix, &OV.matrix,
+                  0., &RES.matrix);
+  gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,
+                  1.0, &RES.matrix, &MOS.matrix,
+                  0., &RES.matrix);
+  
+  for (int i=0; i<mol->nmo; i++) {
+    cout<<"overlap diag "<<i<<" "<<m[i+i*mol->nmo]<<endl;
+  }
+}

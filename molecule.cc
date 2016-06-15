@@ -31,12 +31,18 @@ void Molecule::allocateMemAtoms(const int na) {
 }
 
 void Molecule::allocateMemTddft() {
+  this->os = false;
   int ntrans = 9*this->nroots;
   this->spin = new double[this->nroots];
   this->excenergy = new double[this->nroots];
   this->transmoment = new double[ntrans];
   this->oscstrength = new double[this->nroots];
   this->ci = new double[this->nroots*this->nmo*this->nmo];
-  for (int i=0; i<this->nroots*this->nmo*this->nmo; i++)
+  this->cia = new double[this->nroots*this->nmo*this->nmo];
+  this->cib = new double[this->nroots*this->nmo*this->nmo];
+  for (int i=0; i<this->nroots*this->nmo*this->nmo; i++) {
     this->ci[i] = 0.;
+    this->cia[i] = 0.;
+    this->cib[i] = 0.;
+    }
 }

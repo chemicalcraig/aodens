@@ -72,12 +72,12 @@ int main(int argc, char **argv) {
     
     /* Parse Log file */
     parseLog(temps3,&molecule);
-
+ 
     /* read in mo's */
     readMOs(temps2,&molecule);
-cout<<"Done reading overlap eigenvectors"<<endl;
 
-    /* Calculate the transition charges, tq's 
+    cout<<"Done reading overlap eigenvectors"<<endl;
+   /* Calculate the transition charges, tq's 
      * for an excited state, given by nroot
      */
 

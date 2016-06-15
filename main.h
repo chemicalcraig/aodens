@@ -35,5 +35,4 @@ const string str_Atom[] = { " X",
 ifstream comfile;
 //AO-AO overlap matrix, CI coefficient matrix, MO expansion coeff in AO basis
 double *overlapmat,*cicoeff,*moao;
-
 #endif // MAIN_H

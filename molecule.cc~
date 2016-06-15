@@ -1,0 +1,24 @@
+#include "molecule.h"
+
+Molecule::Molecule()
+{
+}
+
+void Molecule::allocateMem(const int nb) {
+  this.nbasis = nb;
+  this.nbasisatom = new int[nb];
+  this.nbasisatomelements = new string[nb];
+  this.nbasisatomorbitals = new string[nb];
+  this.overlapm = new double[nb*nb];
+  this.occupation = new int[nb];
+  this.moeigenv = new double[nb];
+  this.mos = new double[nb*nb];
+  this.nlindep = 0;
+  this.nmo = nb;//= mol->nbasis;
+}
+
+void Molecule::allocateMemLindep(const int nb, const int nlindep) {
+  this.mos = new double[nm*nb];
+  this.nlindep = nlindep;
+  this.nmo = nb-nlindep;
+}

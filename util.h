@@ -110,13 +110,21 @@ bool calctq(Molecule *mol, int root) {
               mol->atoms[atom].tq += mol->ci[i+j*mol->nmo+root*mol->nmo*mol->nmo]
                     * mol->mos[i+b*mol->nmo] * mol->mos[j+c*mol->nmo]
                     * mol->overlapm[c+b*mol->nbasis];
+              if (mol->os) {
+                mol->atoms[atom].tqa += mol->cia[i+j*mol->nmo+root*mol->nmo*mol->nmo]
+                    * mol->mos[i+b*mol->nmo] * mol->mos[j+c*mol->nmo]
+                    * mol->overlapm[c+b*mol->nbasis];
+                mol->atoms[atom].tqb += mol->cib[i+j*mol->nmo+root*mol->nmo*mol->nmo]
+                    * mol->mos[i+b*mol->nmo] * mol->mos[j+c*mol->nmo]
+                    * mol->overlapm[c+b*mol->nbasis];
+              }
           }//end unoccupied MO
         }//end occupied MO
       }//end all other AOs
     
     } //end NAO on atom of interest
     mol->atoms[atom].tq *= sqrt(2);
-  cout<<mol->atoms[atom].type<<" "<<mol->atoms[atom].tq<<" "<<endl;
+  cout<<mol->atoms[atom].type<<" "<<mol->atoms[atom].tq<<" "<<mol->atoms[atom].tqa<<" "<<mol->atoms[atom].tqb<<endl;
 sum += mol->atoms[atom].tq;
   } //end atoms
   
@@ -462,6 +470,7 @@ bool parseLog(string str, Molecule *mol) {
       if (temps.compare(0,5,"  <S2>",0,5) == 0) {
         getnlines(infile,tempc,2,1000);
         openshell = true;
+        mol->os = true;
       } else
         infile.getline(tempc,1000);
 
@@ -521,6 +530,7 @@ bool parseLog(string str, Molecule *mol) {
         double ycoeff;
         double sumci = 0.;
         double sumci2 = 0.;
+        bool spina;
         while (temps.compare(0,10,tddft_state_stop_str,0,10) != 0 &&
               temps.compare(0,10,"Target root",0,10) !=0 ) {
           temps = strtok(tempc," ");
@@ -534,15 +544,34 @@ bool parseLog(string str, Molecule *mol) {
           for (int i=0; i<dum; i++) temps = strtok(NULL," .");
           int col = atoi(temps.c_str())-1;
           if (openshell) 
-            dum = 3;
+            dum = 1;
           else
             dum = 2;
           for (int i=0; i<dum; i++) temps = strtok(NULL," ");
           
+          if (openshell) {
+            if (temps.compare(0,4,"alpha",0,4)==0) {
+              spina = true; //alpha
+            } else {
+              spina = false; //beta
+            }
+            //cout<<temps<<" "<<spina<<endl;
+            for (int i=0; i<2; i++) temps = strtok(NULL," ");
+          }
           //if (nrpa%2 == 0 || mol->excMethod == "cis" || mol->excMethod == "CIS") {
             mol->ci[row + col*mol->nmo + root*mol->nmo*mol->nmo] += atof(temps.c_str());
+            
+            /** Alpha/Beta CI coefficients for unrestricted **/
+            if (openshell && spina) {
+              mol->cia[row + col*mol->nmo + root*mol->nmo*mol->nmo] += atof(temps.c_str());
+           //   cout<<"alpha "<<temps<<endl;
+            } else if (openshell && (!spina)) {
+              mol->cib[row + col*mol->nmo + root*mol->nmo*mol->nmo] += atof(temps.c_str());
+             // cout<<"beta "<<temps<<endl;
+            }
+
             sumci += atof(temps.c_str())*atof(temps.c_str());
-          //cout<<row<<" "<<col<<" "<<temps<<endl;
+            //cout<<row<<" "<<col<<" "<<temps<<" "<<atof(temps.c_str())<<" temps "<<sumci<<endl;
           //}
           //CTC check this and make compatible with CIS 9-12-14
           /*if (nrpa%2 == 1 ) {
@@ -554,7 +583,7 @@ bool parseLog(string str, Molecule *mol) {
           infile.getline(tempc,1000);
           temps=tempc;
         } //end CI coeffs
-//        cout<<"sum ci "<<sumci<<" "<<sumci2<<endl;
+        //cout<<"sum ci "<<sumci<<" "<<sumci2<<endl;
 //        for (int i=0; i<mol->nmo; i++)
 //          for (int j=0; j<mol->nmo; j++)
 //            mol->ci[i+j*mol->nmo+root*mol->nmo*mol->nmo] /= (sumci-sumci2);
@@ -576,7 +605,9 @@ void printStuff(Molecule *mol,int nroot) {
   for (int i=0; i<mol->natoms; i++) {
     outfile<<i+1<<" "<<mol->atoms[i].type.c_str()<<" "
       <<mol->atoms[i].x<<" "<<mol->atoms[i].y<<" "<<mol->atoms[i].z<<" "
-      <<mol->atoms[i].tq<<endl;
+      <<mol->atoms[i].tq<<" "
+      <<mol->atoms[i].tqa<<" "
+      <<mol->atoms[i].tqb<<endl;
   }
 }
 

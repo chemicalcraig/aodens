@@ -12,7 +12,7 @@ class Atom {
   string type;
   double x,y,z;
   double r;
-  double tq,tqindo;
+  double tq,tqindo,tqa,tqb;
   double charge;
 
   Atom();

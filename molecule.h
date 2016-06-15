@@ -17,7 +17,10 @@ class Molecule {
   string excMethod;
   double *activeCharges;
 
+  bool os;//openshell?
   double *ci; //ci coefficients
+  double *cia; //alpha spin ci coefficients
+  double *cib; //beta spin ci coefficients
   int* nbasisatom; //number of basis functions on an atom
   string *nbasisatomorbitals;
   string *nbasisatomelements; //which element basis function belongs to

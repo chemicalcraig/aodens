@@ -1,0 +1,53 @@
+#NWChem methane tddft
+echo
+start methane
+title "methane tddft"
+memory total 200 mb
+
+#geometry units au
+# O 0       0        0
+# H 0       1.430   -1.107
+# H 0      -1.430   -1.107
+#end
+
+
+geometry
+symmetry C1
+C             0.00000           0.00000           0.00000
+H             0.67550           0.67550           0.67550
+H            -0.67550           0.67550          -0.67550
+H            -0.67550          -0.67550           0.67550
+H             0.67550          -0.67550          -0.67550
+end
+
+basis 631g
+  C library 6-31++G**
+  H library aug-cc-pvdz
+end
+
+set "ao basis" 631g
+
+#property
+#  mulliken
+#  print "ao overlap"
+#end
+
+dft 
+  direct
+  iterations 200
+#  print debug
+  print "basis labels"
+  print "ao overlap"
+  print "final vectors analysis"
+  vectors output methane-2basis.movecs
+  xc b3lyp
+end
+
+tddft
+  Nroots 2
+  maxiter 500
+  notriplet
+  thresh 1.e-5
+end
+
+task tddft energy
