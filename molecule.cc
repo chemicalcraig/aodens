@@ -32,7 +32,7 @@ void Molecule::allocateMemAtoms(const int na) {
 
 void Molecule::allocateMemTddft() {
   int ntrans = 9*this->nroots;
-
+  this->spin = new double[this->nroots];
   this->excenergy = new double[this->nroots];
   this->transmoment = new double[ntrans];
   this->oscstrength = new double[this->nroots];

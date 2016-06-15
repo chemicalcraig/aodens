@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
   //open input file
   comfile.open(argv[1]);
 
+
   //parse input file
   char tempc[1000];
   string temps;
@@ -36,7 +37,7 @@ int main(int argc, char **argv) {
     comfile.getline(tempc,1000);
     temps = strtok(tempc,":");
     temps = strtok(NULL," :");
-        
+
     /* Make a molecule entry and declare natoms for the molecules */
     molecule.allocateMemAtoms(atoi(temps.c_str()));
 
@@ -45,17 +46,17 @@ int main(int argc, char **argv) {
     temps = strtok(tempc,":");
     temps = strtok(NULL," :");
     string temps3 = temps;
-    
+
     /* get MO vectors from movec file */
     /* File must be generated using the
      * mov2asc utility provided with NWChem
      */
     /* get movecs file name */
     comfile.getline(tempc,1000);
-    temps = strtok(tempc," ");
-    for (int i=0; i<3; i++) temps=strtok(NULL," ");
+    temps = strtok(tempc," :");
+    temps=strtok(NULL," :");
     string temps2 = temps;
-    
+
     /* Excitation level of theory */
     comfile.getline(tempc,1000);
     temps = strtok(tempc, " :");

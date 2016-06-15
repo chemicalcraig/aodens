@@ -166,12 +166,11 @@ cout<<"HOMO = "<<mol->nocc<<", # virt. orb. = "<<mol->nuocc<<endl;
   }
 
   /* Read in MO vectors */
- /* for (int i=0; i<mol->nmo; i++)
+  for (int i=0; i<mol->nmo; i++)
     for (int j=0; j<mol->nbasis; j++) {
       infile>>tempc;
       mol->mos[i+j*mol->nmo] = atof(tempc);
     }
-*/
   return true;
 }
 
@@ -353,7 +352,6 @@ bool parseLog(string str, Molecule *mol) {
       if (temps.compare(0,20,overlap_str,1,20) == 0) {
         cout<<"getting overlap matrix"<<endl;
         int nblocks = mol->nbasis/ncol;
-
         for (int block=0; block<nblocks; block++) {
           if (block == 0)
             getnlines(infile,tempc,4,1000);
@@ -454,19 +452,45 @@ bool parseLog(string str, Molecule *mol) {
 
 /** TDDFT excited states **/
     if (temps.compare(0,10,tddft_str,0,10) == 0) {
+      bool openshell = false;
+      int dum = 1;
       cout<<"getting CI vectors"<<endl;
       mol->allocateMemTddft();
       
-      getnlines(infile,tempc,4,1000);
+      getnlines(infile,tempc,3,1000);
+      temps = tempc;
+      if (temps.compare(0,5,"  <S2>",0,5) == 0) {
+        getnlines(infile,tempc,2,1000);
+        openshell = true;
+      } else
+        infile.getline(tempc,1000);
 
       for (int root=0; root<mol->nroots; root++) {
 
         infile.getline(tempc,1000);
         temps = strtok(tempc," ");
-        for (int i=0; i<4; i++) temps = strtok(NULL," ");
-        mol->excenergy[root] = atof(temps.c_str());
+        
+        if (openshell) 
+          dum = 3;
+        else
+          dum = 4;
 
-        getnlines(infile,tempc,2,1000);
+        for (int i=0; i<dum; i++) temps = strtok(NULL," ");
+        mol->excenergy[root] = atof(temps.c_str());
+        if (openshell) {
+          infile>>ws;
+          infile.getline(tempc,1000);
+          temps = strtok(tempc," ");
+          temps = strtok(NULL," ");
+          temps = strtok(NULL," ");
+          mol->spin[root] = atof(temps.c_str());
+        }
+        if (openshell) 
+          dum = 2;
+        else
+          dum = 2;
+
+        getnlines(infile,tempc,dum,1000);
       
         for (int k=0; k<3; k++) {
           temps = strtok(tempc," ");
@@ -476,7 +500,6 @@ bool parseLog(string str, Molecule *mol) {
             for (int i=0; i<2; i++) temps = strtok(NULL," ");
               mol->transmoment[k+j*3+root*9] = atof(temps.c_str());
           }
-
           infile.getline(tempc,1000);
         }//end trans moment
 
@@ -488,10 +511,12 @@ bool parseLog(string str, Molecule *mol) {
       
         infile.getline(tempc,1000);
         temps = tempc;
-
         
         //get CI coeffs
         //nrpa is for RPA
+        /** Currently this is confirmed to work with 
+         * closed shell tddft, and open shell cis
+         **/
         int nrpa = 1;     
         double ycoeff;
         double sumci = 0.;
@@ -501,13 +526,23 @@ bool parseLog(string str, Molecule *mol) {
           temps = strtok(tempc," ");
           temps = strtok(NULL," ");
           int row = atoi(temps.c_str())-1;
-          for (int i=0; i<4; i++) temps = strtok(NULL," .");
+          if (openshell) 
+            dum = 5;
+          else
+            dum = 4;
+
+          for (int i=0; i<dum; i++) temps = strtok(NULL," .");
           int col = atoi(temps.c_str())-1;
-          for (int i=0; i<2; i++) temps = strtok(NULL," ");
+          if (openshell) 
+            dum = 3;
+          else
+            dum = 2;
+          for (int i=0; i<dum; i++) temps = strtok(NULL," ");
           
           //if (nrpa%2 == 0 || mol->excMethod == "cis" || mol->excMethod == "CIS") {
             mol->ci[row + col*mol->nmo + root*mol->nmo*mol->nmo] += atof(temps.c_str());
             sumci += atof(temps.c_str())*atof(temps.c_str());
+          //cout<<row<<" "<<col<<" "<<temps<<endl;
           //}
           //CTC check this and make compatible with CIS 9-12-14
           /*if (nrpa%2 == 1 ) {
@@ -538,10 +573,6 @@ void printStuff(Molecule *mol,int nroot) {
   /* print atomic numbers, elements, positions, and tq's */
   /* natoms first */
   outfile<<"Natoms : "<<mol->natoms<<endl;
-  if (nroot == -1) //ground state
-    outfile<<"State energy : 0"<<endl;
-  else
-    outfile<<"State energy : "<<mol->excenergy[nroot]<<endl;
   for (int i=0; i<mol->natoms; i++) {
     outfile<<i+1<<" "<<mol->atoms[i].type.c_str()<<" "
       <<mol->atoms[i].x<<" "<<mol->atoms[i].y<<" "<<mol->atoms[i].z<<" "
