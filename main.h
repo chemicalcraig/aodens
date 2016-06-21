@@ -9,6 +9,7 @@
 #include <math.h>
 #include <vector>
 #include "util.h"
+#include <omp.h>
 using namespace std;
 
 /*****************************

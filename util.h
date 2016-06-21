@@ -10,6 +10,7 @@
 #include "atom.h"
 #include "molecule.h"
 #include <iomanip>
+#include <omp.h>
 using namespace std;
 
 /* Search strings */
@@ -98,33 +99,47 @@ bool calctqindo(Molecule *mol, int root) {
 bool calctq(Molecule *mol, int root) {
  double sum = 0.; 
   for (int atom=0; atom<mol->natoms; atom++) {
-      
+    double s2,s3,s4;
+    s2=0.;
+    s3=0.;
+    s4=0.;
     mol->atoms[atom].tq = 0.;
+    mol->atoms[atom].tqa = 0.;
+    mol->atoms[atom].tqb = 0.;
 
     for (int b=0; b<mol->nbasis; b++) {
       if (mol->nbasisatom[b] != atom+1) continue;
+      
+#pragma omp parallel for reduction (+:s2,s3,s4)
       for (int c=0; c<mol->nbasis; c++) {
         //if (mol->nbasisatom[c] == atom+1) continue;
+        
         for (int i=0; i<mol->nocc; i++) {
           for (int j=mol->nocc; j<mol->nbasis; j++) {
-              mol->atoms[atom].tq += mol->ci[i+j*mol->nmo+root*mol->nmo*mol->nmo]
+              /*mol->atoms[atom].tq*/s2 += mol->ci[i+j*mol->nmo+root*mol->nmo*mol->nmo]
                     * mol->mos[i+b*mol->nmo] * mol->mos[j+c*mol->nmo]
                     * mol->overlapm[c+b*mol->nbasis];
-              if (mol->os) {
-                mol->atoms[atom].tqa += mol->cia[i+j*mol->nmo+root*mol->nmo*mol->nmo]
+              //if (mol->os) {
+                /*mol->atoms[atom].tqa*/s3 = s3 + mol->cia[i+j*mol->nmo+root*mol->nmo*mol->nmo]
                     * mol->mos[i+b*mol->nmo] * mol->mos[j+c*mol->nmo]
                     * mol->overlapm[c+b*mol->nbasis];
-                mol->atoms[atom].tqb += mol->cib[i+j*mol->nmo+root*mol->nmo*mol->nmo]
+                /*mol->atoms[atom].tqb*/s4 += mol->cib[i+j*mol->nmo+root*mol->nmo*mol->nmo]
                     * mol->mos[i+b*mol->nmo] * mol->mos[j+c*mol->nmo]
                     * mol->overlapm[c+b*mol->nbasis];
-              }
+              //}
           }//end unoccupied MO
         }//end occupied MO
       }//end all other AOs
     
     } //end NAO on atom of interest
+    if (mol->os) {
+      mol->atoms[atom].tqa = s3;
+      mol->atoms[atom].tqb = s4;
+    } else
+      mol->atoms[atom].tq = s2;
+
     mol->atoms[atom].tq *= sqrt(2);
-  cout<<mol->atoms[atom].type<<" "<<mol->atoms[atom].tq<<" "<<mol->atoms[atom].tqa<<" "<<mol->atoms[atom].tqb<<endl;
+  cout<<atom<<" "<<mol->atoms[atom].type<<" "<<mol->atoms[atom].tq<<" "<<mol->atoms[atom].tqa<<" "<<mol->atoms[atom].tqb<<endl;
 sum += mol->atoms[atom].tq;
   } //end atoms
   

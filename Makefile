@@ -9,7 +9,7 @@ EXEC = aodens.out
 
 # Options for linux 
 LDFLAGS = -L/usr/lib -L/usr/local/lib -lm -lgsl -lgslcblas
-CPPFLAGS = -I/usr/include -O3 -Wno-unused-variable -Wno-deprecated -fpermissive
+CPPFLAGS = -fopenmp -I/usr/include -O3 -Wno-unused-variable -Wno-deprecated -fpermissive
 #CPPFLAGS = -I/usr/include -g3 -ggdb -Wall -Wno-unused-variable -Wno-deprecated
 #CPPFLAGS = -O2 -Wno-deprecated
 #CPPFLAGS = -O3 -march=pentium4 -malign-double -Wno-deprecated
