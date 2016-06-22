@@ -120,7 +120,7 @@ bool calctq(Molecule *mol, int root) {
                     * mol->mos[i+b*mol->nmo] * mol->mos[j+c*mol->nmo]
                     * mol->overlapm[c+b*mol->nbasis];
               //if (mol->os) {
-                /*mol->atoms[atom].tqa*/s3 = s3 + mol->cia[i+j*mol->nmo+root*mol->nmo*mol->nmo]
+                /*mol->atoms[atom].tqa*/s3 += mol->cia[i+j*mol->nmo+root*mol->nmo*mol->nmo]
                     * mol->mos[i+b*mol->nmo] * mol->mos[j+c*mol->nmo]
                     * mol->overlapm[c+b*mol->nbasis];
                 /*mol->atoms[atom].tqb*/s4 += mol->cib[i+j*mol->nmo+root*mol->nmo*mol->nmo]
@@ -135,10 +135,14 @@ bool calctq(Molecule *mol, int root) {
     if (mol->os) {
       mol->atoms[atom].tqa = s3;
       mol->atoms[atom].tqb = s4;
+      mol->atoms[atom].tq = s3+s4;
     } else
       mol->atoms[atom].tq = s2;
 
+    /** Check on the sqrt(2), and if it's needed for open shell **/
     mol->atoms[atom].tq *= sqrt(2);
+    mol->atoms[atom].tqa *= sqrt(2);
+    mol->atoms[atom].tqb *= sqrt(2);
   cout<<atom<<" "<<mol->atoms[atom].type<<" "<<mol->atoms[atom].tq<<" "<<mol->atoms[atom].tqa<<" "<<mol->atoms[atom].tqb<<endl;
 sum += mol->atoms[atom].tq;
   } //end atoms
