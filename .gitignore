@@ -3,3 +3,6 @@
 *.exe
 *.dat
 .gitignore
+.fuse*
+*.tar.gz
+*.swp
